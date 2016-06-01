@@ -19672,7 +19672,7 @@
 /* 159 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
@@ -19705,19 +19705,16 @@
 	  }
 
 	  _createClass(Timer, [{
-	    key: "componentWillReceiveProps",
+	    key: 'componentWillReceiveProps',
 	    value: function componentWillReceiveProps(nextProps) {
-	      if (nextProps.start) {
-	        // Execute updateTimer each one second
-	        this.nInterval = setInterval(this.updateTimer.bind(this), 1000);
-	      } else {
-	        // Stop interval and restart counter
-	        clearInterval(this.nInterval);
-	        this.setState({ minutes: 0, seconds: 0 });
+	      if (nextProps.start && !this.props.start) {
+	        this.initTimer();
+	      } else if (nextProps.start && this.props.start) {
+	        this.initTimer(true);
 	      }
 	    }
 	  }, {
-	    key: "updateTimer",
+	    key: 'updateTimer',
 	    value: function updateTimer() {
 	      // Each onde second update state
 	      var _state = this.state;
@@ -19729,15 +19726,42 @@
 	      seconds = seconds + 1 > 59 ? 0 : seconds + 1;
 
 	      this.setState({ minutes: minutes, seconds: seconds });
+
+	      if (this.props.counter && this.props.counter == seconds) {
+	        this.stopTimer();
+	      }
 	    }
 	  }, {
-	    key: "render",
+	    key: 'stopTimer',
+	    value: function stopTimer() {
+	      clearInterval(this.nInterval);
+	      if (this.props.onStopTimer) {
+	        // alert parent that the counter ended
+	        this.props.onStopTimer();
+	      }
+	    }
+	  }, {
+	    key: 'startTimer',
+	    value: function startTimer() {
+	      // Execute updateTimer each one second
+	      this.nInterval = setInterval(this.updateTimer.bind(this), 1000);
+	    }
+	  }, {
+	    key: 'initTimer',
+	    value: function initTimer(restart) {
+	      if (restart === true) {
+	        clearInterval(this.nInterval);
+	      }
+	      this.setState({ minutes: 0, seconds: 0 }, this.startTimer.bind(this));
+	    }
+	  }, {
+	    key: 'render',
 	    value: function render() {
 	      return _react2.default.createElement(
-	        "h2",
-	        { className: "timer" },
+	        'h2',
+	        { className: 'timer' },
 	        this.state.minutes,
-	        ":",
+	        ':',
 	        this.state.seconds
 	      );
 	    }
@@ -19759,31 +19783,27 @@
 	  }
 
 	  _createClass(Pomodoro, [{
-	    key: "handleStart",
+	    key: 'handleStart',
 	    value: function handleStart() {
 	      this.setState({ start: true });
 	    }
 	  }, {
-	    key: "handleRestart",
-	    value: function handleRestart() {
+	    key: 'handleStop',
+	    value: function handleStop() {
 	      this.setState({ start: false });
+	      alert('Finished task timer');
 	    }
 	  }, {
-	    key: "render",
+	    key: 'render',
 	    value: function render() {
 	      return _react2.default.createElement(
-	        "div",
-	        { className: "pomodoro" },
-	        _react2.default.createElement(Timer, { start: this.state.start }),
+	        'div',
+	        { className: 'pomodoro' },
+	        _react2.default.createElement(Timer, { start: this.state.start, counter: 3, onStopTimer: this.handleStop.bind(this) }),
 	        _react2.default.createElement(
-	          "button",
+	          'button',
 	          { onClick: this.handleStart.bind(this) },
-	          "Start"
-	        ),
-	        _react2.default.createElement(
-	          "button",
-	          { onClick: this.handleRestart.bind(this) },
-	          "Restart"
+	          !this.state.start ? "Start" : "Restart"
 	        )
 	      );
 	    }

@@ -9,13 +9,10 @@ class Timer extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.start) {
-      // Execute updateTimer each one second
-      this.nInterval = setInterval(this.updateTimer.bind(this), 1000)
-    } else {
-      // Stop interval and restart counter
-      clearInterval(this.nInterval)
-      this.setState({ minutes: 0, seconds: 0 })
+    if (nextProps.start && !this.props.start) {
+      this.initTimer()
+    } else if (nextProps.start && this.props.start) {
+      this.initTimer(true)
     }
   }
 
@@ -26,7 +23,31 @@ class Timer extends React.Component {
     minutes = seconds + 1 > 59 ? minutes + 1 : minutes
     seconds = seconds + 1 > 59 ? 0 : seconds + 1
 
-    this.setState({minutes: minutes, seconds: seconds })
+    this.setState({ minutes: minutes, seconds: seconds })
+
+    if (this.props.counter && this.props.counter == seconds) {
+      this.stopTimer()
+    }
+  }
+
+  stopTimer() {
+    clearInterval(this.nInterval)
+    if (this.props.onStopTimer) {
+      // alert parent that the counter ended
+      this.props.onStopTimer()
+    }
+  }
+
+  startTimer() {
+    // Execute updateTimer each one second
+    this.nInterval = setInterval(this.updateTimer.bind(this), 1000)
+  }
+
+  initTimer(restart) {
+    if (restart === true) {
+      clearInterval(this.nInterval)
+    }
+    this.setState({ minutes: 0, seconds: 0}, this.startTimer.bind(this))
   }
 
   render() {
@@ -45,16 +66,16 @@ class Pomodoro extends React.Component {
   handleStart() {
     this.setState({ start: true })
   }
-  handleRestart() {
+  handleStop() {
     this.setState({ start: false })
+    alert('Finished task timer')
   }
 
   render() {
     return (
       <div className="pomodoro">
-        <Timer start={this.state.start} />
-        <button onClick={this.handleStart.bind(this)}>Start</button>
-        <button onClick={this.handleRestart.bind(this)}>Restart</button>
+        <Timer start={this.state.start} counter={3} onStopTimer={this.handleStop.bind(this)} />
+        <button onClick={this.handleStart.bind(this)}>{ !this.state.start ? "Start" : "Restart" }</button>
       </div>
     )
   }
