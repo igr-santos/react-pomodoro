@@ -1,6 +1,6 @@
 import { createStore, combineReducers } from 'redux'
 
-export const timer = (state = {minutes: 0, seconds: 0}, action) => {
+export const timer = (state = { minutes: 0, seconds: 0 }, action) => {
   switch (action.type) {
     case 'UPDATE':
       var { minutes, seconds }  = state
@@ -15,8 +15,20 @@ export const timer = (state = {minutes: 0, seconds: 0}, action) => {
   }
 }
 
-const pomodoro = combineReducers({
+export const pomodoro = (state = { start: false }, action) => {
+  switch (action.type) {
+    case 'START':
+      return { start: true }
+    case 'STOP':
+      return { start: false }
+    default:
+      return state
+  }
+}
+
+const pomodoroApp = combineReducers({
   timer,
+  pomodoro
 })
 
-export const store = createStore(pomodoro)
+export const store = createStore(pomodoroApp)

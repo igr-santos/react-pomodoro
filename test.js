@@ -1,7 +1,7 @@
 #! /usr/bin/env node
 import expect from 'expect'
 
-import { timer } from './modules/stores'
+import { timer, pomodoro } from './modules/stores'
 
 
 // should sum 1 second the each new call
@@ -40,9 +40,45 @@ const testResetTimer = () => {
   ).toEqual(stateAfter)
 }
 
+// should init timer when stop
+const testStartTimer = () => {
+  const stateBefore = { start: false }
+  const stateAfter = { start: true }
+
+  const action = { type: 'START' }
+  expect(
+    pomodoro(stateBefore, action)
+  ).toEqual(stateAfter)
+}
+
+// should restart timer when start
+const testRestartTimer = () => {
+  const stateBefore = { start: true }
+  const stateAfter = { start: true }
+
+  const action = { type: 'START' }
+  expect(
+    pomodoro(stateBefore, action)
+  ).toEqual(stateAfter)
+}
+
+// should stop timer when stop action pomodoro
+const testStopTimer = () => {
+  const stateBefore = { start: true }
+  const stateAfter = { start: false }
+
+  const action = { type: 'STOP' }
+  expect(
+    pomodoro(stateBefore, action)
+  ).toEqual(stateAfter)
+}
+
 
 testUpdateTimer()
 testUpdateTimerMinute()
 testResetTimer()
+testStartTimer()
+testRestartTimer()
+testStopTimer()
 
 console.log('All tests passed.')

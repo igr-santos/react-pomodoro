@@ -29,15 +29,15 @@ class Timer extends React.Component {
     )
 
     if (counter == compare) {
-      this.stopTimer()
+      this.finishedTimer()
     }
   }
 
-  stopTimer() {
+  finishedTimer() {
     clearInterval(this.nInterval)
-    if (this.props.onStopTimer) {
+    if (this.props.onFinishedTimer) {
       // alert parent that the counter ended
-      this.props.onStopTimer()
+      this.props.onFinishedTimer()
     }
   }
 
@@ -63,14 +63,9 @@ class Timer extends React.Component {
 
 Timer.propTypes = {
   start: React.PropTypes.bool.isRequired,
-  onStopTimer: React.PropTypes.func,
+  onFinishedTimer: React.PropTypes.func,
   counter: React.PropTypes.number.isRequired,
   typeCounter: React.PropTypes.oneOf(['minutes', 'seconds']).isRequired
-}
-
-Timer.defaultProps = {
-  counter: 25,
-  typeCounter: 'minutes'
 }
 
 

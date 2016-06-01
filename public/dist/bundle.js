@@ -52,13 +52,13 @@
 
 	var _reactDom = __webpack_require__(158);
 
-	var _reactPomodoro = __webpack_require__(159);
+	var _Pomodoro = __webpack_require__(159);
 
-	var _reactPomodoro2 = _interopRequireDefault(_reactPomodoro);
+	var _Pomodoro2 = _interopRequireDefault(_Pomodoro);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	(0, _reactDom.render)(_react2.default.createElement(_reactPomodoro2.default, null), document.getElementById('react-pomodoro'));
+	(0, _reactDom.render)(_react2.default.createElement(_Pomodoro2.default, { counter: 3, typeCounter: 'seconds' }), document.getElementById('react-pomodoro'));
 
 /***/ },
 /* 1 */
@@ -19678,6 +19678,8 @@
 	  value: true
 	});
 
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 	var _react = __webpack_require__(1);
@@ -19687,6 +19689,8 @@
 	var _Timer = __webpack_require__(160);
 
 	var _Timer2 = _interopRequireDefault(_Timer);
+
+	var _stores = __webpack_require__(161);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -19699,37 +19703,38 @@
 	var Pomodoro = function (_React$Component) {
 	  _inherits(Pomodoro, _React$Component);
 
-	  function Pomodoro(props) {
+	  function Pomodoro() {
 	    _classCallCheck(this, Pomodoro);
 
-	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Pomodoro).call(this, props));
-
-	    _this.state = { start: false };
-	    return _this;
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(Pomodoro).apply(this, arguments));
 	  }
 
 	  _createClass(Pomodoro, [{
 	    key: 'handleStart',
 	    value: function handleStart() {
-	      this.setState({ start: true });
+	      _stores.store.dispatch({ type: 'START' });
+	      this.forceUpdate(); // force for update render store state in timer
 	    }
 	  }, {
-	    key: 'handleStop',
-	    value: function handleStop() {
-	      this.setState({ start: false });
+	    key: 'handleFinished',
+	    value: function handleFinished() {
+	      _stores.store.dispatch({ type: 'STOP' });
 	      alert('Finished task timer');
+	      this.forceUpdate(); // force for update render store state in timer
 	    }
 	  }, {
 	    key: 'render',
 	    value: function render() {
+	      var start = _stores.store.getState().pomodoro.start;
+
 	      return _react2.default.createElement(
 	        'div',
 	        { className: 'pomodoro' },
-	        _react2.default.createElement(_Timer2.default, { start: this.state.start, counter: 3, typeCounter: 'seconds', onStopTimer: this.handleStop.bind(this) }),
+	        _react2.default.createElement(_Timer2.default, _extends({}, this.props, { start: start, onFinishedTimer: this.handleFinished.bind(this) })),
 	        _react2.default.createElement(
 	          'button',
 	          { onClick: this.handleStart.bind(this) },
-	          !this.state.start ? "Start" : "Restart"
+	          !start ? "Start" : "Restart"
 	        )
 	      );
 	    }
@@ -19737,6 +19742,16 @@
 
 	  return Pomodoro;
 	}(_react2.default.Component);
+
+	Pomodoro.propTypes = {
+	  counter: _react2.default.PropTypes.number.isRequired,
+	  typeCounter: _react2.default.PropTypes.oneOf(['minutes', 'seconds']).isRequired
+	};
+
+	Pomodoro.defaultProps = {
+	  counter: 25,
+	  typeCounter: 'minutes'
+	};
 
 	exports.default = Pomodoro;
 
@@ -19794,16 +19809,16 @@
 	      var compare = this.typeCounter === 'minute' ? _stores.store.getState().timer.minutes : _stores.store.getState().timer.seconds;
 
 	      if (counter == compare) {
-	        this.stopTimer();
+	        this.finishedTimer();
 	      }
 	    }
 	  }, {
-	    key: 'stopTimer',
-	    value: function stopTimer() {
+	    key: 'finishedTimer',
+	    value: function finishedTimer() {
 	      clearInterval(this.nInterval);
-	      if (this.props.onStopTimer) {
+	      if (this.props.onFinishedTimer) {
 	        // alert parent that the counter ended
-	        this.props.onStopTimer();
+	        this.props.onFinishedTimer();
 	      }
 	    }
 	  }, {
@@ -19844,14 +19859,9 @@
 
 	Timer.propTypes = {
 	  start: _react2.default.PropTypes.bool.isRequired,
-	  onStopTimer: _react2.default.PropTypes.func,
+	  onFinishedTimer: _react2.default.PropTypes.func,
 	  counter: _react2.default.PropTypes.number.isRequired,
 	  typeCounter: _react2.default.PropTypes.oneOf(['minutes', 'seconds']).isRequired
-	};
-
-	Timer.defaultProps = {
-	  counter: 25,
-	  typeCounter: 'minutes'
 	};
 
 	exports.default = Timer;
@@ -19865,7 +19875,7 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.store = exports.timer = undefined;
+	exports.store = exports.pomodoro = exports.timer = undefined;
 
 	var _redux = __webpack_require__(162);
 
@@ -19889,11 +19899,26 @@
 	  }
 	};
 
-	var pomodoro = (0, _redux.combineReducers)({
-	  timer: timer
+	var pomodoro = exports.pomodoro = function pomodoro() {
+	  var state = arguments.length <= 0 || arguments[0] === undefined ? { start: false } : arguments[0];
+	  var action = arguments[1];
+
+	  switch (action.type) {
+	    case 'START':
+	      return { start: true };
+	    case 'STOP':
+	      return { start: false };
+	    default:
+	      return state;
+	  }
+	};
+
+	var pomodoroApp = (0, _redux.combineReducers)({
+	  timer: timer,
+	  pomodoro: pomodoro
 	});
 
-	var store = exports.store = (0, _redux.createStore)(pomodoro);
+	var store = exports.store = (0, _redux.createStore)(pomodoroApp);
 
 /***/ },
 /* 162 */
