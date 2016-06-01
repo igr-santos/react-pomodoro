@@ -9,12 +9,12 @@ var app = express()
 app.use(compression())
 
 // add path.join here
-app.use(express.static(path.join(__dirname, 'public')))
+app.use(express.static(path.join(__dirname, 'examples')))
 
 // ...
 app.get('*', function (req, res) {
   // and drop 'public' in the middle of here
-  res.sendFile(path.join(__dirname, 'public', 'index.html'))
+  res.sendFile(path.join(__dirname, 'examples', 'index.html'))
 })
 
 var PORT = process.env.PORT || 8080
