@@ -1,6 +1,9 @@
+import React from 'react'
 import { render } from 'react-dom'
+
+import Pomodoro from './modules/react-pomodoro'
 
 
 render((
-  <h1>Pomodoro</h1>
+  <Pomodoro />
 ), document.getElementById('react-pomodoro'))
